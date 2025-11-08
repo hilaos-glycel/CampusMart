@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Service System Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .service-card { 
+            border: 1px solid #ddd; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .price { color: #17a2b8; font-weight: bold; font-size: 20px; }
+        .category { background: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .provider { color: #666; font-size: 14px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .test-links { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .test-links a { 
+            display: inline-block; 
+            margin: 5px 10px; 
+            padding: 10px 15px; 
+            background: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 5px; 
+        }
+        .test-links a:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Final Service System Test</h1>
+    
+    <div class="test-links">
+        <h3>🔗 Test Links</h3>
+        <a href="post-service.php" target="_blank">📝 Post New Service</a>
+        <a href="marketplace.php?type=services" target="_blank">🛍️ View Services Marketplace</a>
+        <a href="service-details.php?id=1" target="_blank">📄 Service Details Example</a>
+        <a href="login.php" target="_blank">🔐 Login (Required for Posting)</a>
+    </div>
+    
+    <div id="status">Testing services API...</div>
+    <div id="services"></div>
+    
+    <script>
+    console.log('🧪 Starting final service system test...');
+    
+    fetch('api/get_services.php')
+        .then(response => {
+            console.log('✅ Response received, status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ JSON parsed successfully');
+            console.log('📊 Data:', data);
+            
+            if (data.success) {
+                document.getElementById('status').innerHTML = `
+                    <p class="success">✅ Services API Working Successfully!</p>
+                    <p><strong>Services found:</strong> ${data.services ? data.services.length : 0}</p>
+                    <p><strong>Total in database:</strong> ${data.pagination ? data.pagination.total : 'N/A'}</p>
+                `;
+                
+                if (data.services && data.services.length > 0) {
+                    let html = '<h2>🛠️ Available Services:</h2>';
+                    
+                    data.services.forEach((service, index) => {
+                        html += `
+                            <div class="service-card">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                    <h3>${service.title}</h3>
+                                    <span class="category">${service.category.toUpperCase()}</span>
+                                </div>
+                                <p>${service.description}</p>
+                                <p class="price">₱${parseFloat(service.price_per_hour).toLocaleString()}/hour</p>
+                                ${service.subject_skill ? `<p><strong>Skills:</strong> ${service.subject_skill}</p>` : ''}
+                                ${service.availability ? `<p><strong>Availability:</strong> ${service.availability}</p>` : ''}
+                                ${service.location ? `<p><strong>Location:</strong> ${service.location}</p>` : ''}
+                                <p class="provider">Provider: ${service.provider_name} (${service.provider_student_id}) - ${service.provider_course}, ${service.provider_year}</p>
+                                <p><small>Posted: ${new Date(service.created_at).toLocaleDateString()}</small></p>
+                                <p><a href="service-details.php?id=${service.id}" target="_blank">View Details</a></p>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('services').innerHTML = html;
+                    
+                    console.log('🎉 SUCCESS! All', data.services.length, 'services displayed correctly');
+                    
+                } else {
+                    document.getElementById('services').innerHTML = '<p>No services found in the response.</p>';
+                }
+                
+            } else {
+                document.getElementById('status').innerHTML = `
+                    <p class="error">❌ API returned success: false</p>
+                    <p>Message: ${data.message || 'No error message provided'}</p>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error:', error);
+            document.getElementById('status').innerHTML = `
+                <p class="error">❌ API Call Failed: ${error.message}</p>
+                <p>Check the browser console for more details.</p>
+            `;
+        });
+    </script>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #e8f5e8; border-radius: 8px;">
+        <h3>✅ Service Posting System Status</h3>
+        <ul>
+            <li><strong>Database:</strong> Services table created with sample data</li>
+            <li><strong>API Endpoints:</strong> create_service.php, get_services.php, update_service.php</li>
+            <li><strong>Frontend:</strong> post-service.php (posting form), service-details.php (details page)</li>
+            <li><strong>Navigation:</strong> "Offer Service" link added to header</li>
+            <li><strong>Integration:</strong> Services appear in marketplace Services tab</li>
+        </ul>
+        
+        <h4>🚀 How to Test:</h4>
+        <ol>
+            <li><strong>Login:</strong> Use existing account (hilaos/hilaos123)</li>
+            <li><strong>Post Service:</strong> Click "Offer Service" in navigation</li>
+            <li><strong>Fill Form:</strong> Complete all required fields</li>
+            <li><strong>Submit:</strong> Service should be created successfully</li>
+            <li><strong>Verify:</strong> Check marketplace Services tab for new service</li>
+        </ol>
+    </div>
+</body>
+</html>

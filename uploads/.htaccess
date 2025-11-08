@@ -1,0 +1,17 @@
+# Prevent direct access to PHP files in uploads
+<Files *.php>
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow common media types
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|mp4|webm|mov)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Set proper MIME types
+AddType image/webp .webp
+AddType video/mp4 .mp4
+AddType video/webm .webm
+AddType video/quicktime .mov

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Marketplace JavaScript</title>
+</head>
+<body>
+    <h1>Testing Marketplace JavaScript</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+    console.log('Starting API test...');
+    
+    // Test the API call
+    fetch('api/get_listings.php')
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            return response.text(); // Get as text first to see raw response
+        })
+        .then(text => {
+            console.log('Raw response:', text);
+            
+            // Try to parse as JSON
+            try {
+                const data = JSON.parse(text);
+                console.log('Parsed JSON:', data);
+                
+                document.getElementById('results').innerHTML = `
+                    <h3>API Test Results:</h3>
+                    <p><strong>Success:</strong> ${data.success}</p>
+                    <p><strong>Listings Count:</strong> ${data.listings ? data.listings.length : 0}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                if (data.success && data.listings && data.listings.length > 0) {
+                    console.log('✅ API is working! Found', data.listings.length, 'listings');
+                    
+                    // Test displaying the first listing
+                    const firstListing = data.listings[0];
+                    console.log('First listing:', firstListing);
+                    
+                    document.getElementById('results').innerHTML += `
+                        <h3>First Listing Test:</h3>
+                        <div style="border: 1px solid #ddd; padding: 15px; margin: 10px 0;">
+                            <h4>${firstListing.title}</h4>
+                            <p>Price: ₱${parseFloat(firstListing.price).toLocaleString()}</p>
+                            <p>Condition: ${firstListing.condition_item}</p>
+                            <p>Seller: ${firstListing.seller_name}</p>
+                            <p>Category: ${firstListing.category_name}</p>
+                        </div>
+                    `;
+                } else {
+                    console.log('❌ No listings found or API error');
+                }
+                
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                document.getElementById('results').innerHTML = `
+                    <h3>JSON Parse Error:</h3>
+                    <p style="color: red;">${e.message}</p>
+                    <h4>Raw Response:</h4>
+                    <pre style="background: #f8f8f8; padding: 10px;">${text}</pre>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById('results').innerHTML = `
+                <h3>Fetch Error:</h3>
+                <p style="color: red;">${error.message}</p>
+            `;
+        });
+    </script>
+</body>
+</html>

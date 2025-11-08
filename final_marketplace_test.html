@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Marketplace Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .product-card { 
+            border: 1px solid #ddd; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .price { color: #28a745; font-weight: bold; font-size: 20px; }
+        .condition { background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .seller { color: #666; font-size: 14px; }
+        .category { color: #007bff; font-weight: 500; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Final Marketplace Test</h1>
+    
+    <div id="status">Testing API...</div>
+    <div id="products"></div>
+    
+    <script>
+    console.log('🧪 Starting final marketplace test...');
+    
+    fetch('api/get_listings.php')
+        .then(response => {
+            console.log('✅ Response received, status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ JSON parsed successfully');
+            console.log('📊 Data:', data);
+            
+            if (data.success) {
+                document.getElementById('status').innerHTML = `
+                    <p class="success">✅ API Working Successfully!</p>
+                    <p><strong>Listings found:</strong> ${data.listings ? data.listings.length : 0}</p>
+                    <p><strong>Total in database:</strong> ${data.pagination ? data.pagination.total : 'N/A'}</p>
+                `;
+                
+                if (data.listings && data.listings.length > 0) {
+                    let html = '<h2>🛍️ Your Listings:</h2>';
+                    
+                    data.listings.forEach((product, index) => {
+                        html += `
+                            <div class="product-card">
+                                <h3>${product.title}</h3>
+                                <p>${product.description}</p>
+                                <p class="price">₱${parseFloat(product.price).toLocaleString()}</p>
+                                <p>Condition: <span class="condition">${product.condition_item}</span></p>
+                                <p class="category">Category: ${product.category_name}</p>
+                                <p class="seller">Seller: ${product.seller_name} (${product.seller_student_id})</p>
+                                <p><small>Posted: ${new Date(product.created_at).toLocaleDateString()}</small></p>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('products').innerHTML = html;
+                    
+                    console.log('🎉 SUCCESS! All', data.listings.length, 'listings displayed correctly');
+                    
+                } else {
+                    document.getElementById('products').innerHTML = '<p>No products found in the response.</p>';
+                }
+                
+            } else {
+                document.getElementById('status').innerHTML = `
+                    <p class="error">❌ API returned success: false</p>
+                    <p>Message: ${data.message || 'No error message provided'}</p>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error:', error);
+            document.getElementById('status').innerHTML = `
+                <p class="error">❌ API Call Failed: ${error.message}</p>
+                <p>Check the browser console for more details.</p>
+            `;
+        });
+    </script>
+</body>
+</html>
